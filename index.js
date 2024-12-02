@@ -57,6 +57,8 @@ app.post('/generate-pdf', async (req, res) => {
 
     // Charger la police personnalisée
     const fontPath = path.join(__dirname, 'poppins-bold.ttf'); // Assurez-vous que ce fichier existe
+    console.log(fs.existsSync(fontPath)); // Doit retourner `true`
+
     if (!fs.existsSync(fontPath)) {
       throw new Error('Le fichier de police est introuvable.');
     }
