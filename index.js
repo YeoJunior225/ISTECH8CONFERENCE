@@ -37,6 +37,7 @@ async function verifyPDF(filePath) {
 const fontkit = require('@pdf-lib/fontkit'); // Importer fontkit
 
 app.post('/generate-pdf', async (req, res) => {
+  console.log("entrer")
   try {
     const { firstName, lastName, email } = req.body;
 
