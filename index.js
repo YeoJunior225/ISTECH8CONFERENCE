@@ -138,8 +138,8 @@ app.post('/generate-pdf', async (req, res) => {
     // Vérification si l'utilisateur est autorisé
     const isAuthorized = authorizedUsers.some(
       (user) =>
-        console.log(user.firstName)
-        console.log(firstName)
+        console.log('tab',user.firstName)
+        console.log('champ',firstName)
         user.firstName.toLowerCase() === firstName.toLowerCase()  
     );
 
