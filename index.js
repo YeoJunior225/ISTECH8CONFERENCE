@@ -24,7 +24,6 @@ app.use(cors({ origin: '*' }));
 app.use(express.json());
 
 // Tableau des utilisateurs autorisés
-// Tableau des utilisateurs autorisés sans e-mail
 const authorizedUsers = [
   { firstName: 'junior' },
   { firstName: 'KOUADIO' },
@@ -139,6 +138,8 @@ app.post('/generate-pdf', async (req, res) => {
     // Vérification si l'utilisateur est autorisé
     const isAuthorized = authorizedUsers.some(
       (user) =>
+        console.log(user.firstName)
+        console.log(firstName)
         user.firstName.toLowerCase() === firstName.toLowerCase()  
     );
 
