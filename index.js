@@ -46,7 +46,7 @@ app.post('/generate-pdf', async (req, res) => {
     }
 
     // Charger le modèle PDF
-    const pdfTemplatePath = path.join(__dirname, 'certificat.pdf');
+    const pdfTemplatePath = path.join(__dirname, 'certificat2.pdf');
     if (!fs.existsSync(pdfTemplatePath)) {
       throw new Error('Le modèle PDF est introuvable.');
     }
