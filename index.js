@@ -160,7 +160,7 @@ const isAuthorized = authorizedUsers.some((user) => {
     pdfDoc.registerFontkit(fontkit);
 
     // Charger la police personnalisée
-    const fontPath = path.join(__dirname, 'poppins-bold.ttf');
+    const fontPath = path.join(__dirname, 'Poppins-Bold.ttf');
     if (!fs.existsSync(fontPath)) {
       throw new Error('Le fichier de police est introuvable.');
     }
