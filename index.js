@@ -157,12 +157,40 @@ app.post('/generate-pdf', async (req, res) => {
       color: rgb(0, 0, 0),
     });
 
-    // Sauvegarder le PDF
+   / Enregistrer le fichier PDF généré
     const pdfBytes = await pdfDoc.save();
-    res.setHeader('Content-Type', 'application/pdf');
-    res.send(pdfBytes);
+    const pdfFileName = ${firstName}_${lastName}_certificat.pdf;
+    const pdfFilePath = path.join(__dirname, 'generated_certificates', pdfFileName);
+
+    if (!fs.existsSync(path.dirname(pdfFilePath))) {
+      fs.mkdirSync(path.dirname(pdfFilePath));
+    }
+    fs.writeFileSync(pdfFilePath, pdfBytes);
+
+    // Envoi de l'e-mail avec le PDF en pièce jointe
+    const mailOptions = {
+      from: 'textjuniortexte@gmail.com',
+      to: email,
+      subject: 'Votre certificat personnalisé',
+      text: 'Veuillez trouver ci-joint votre certificat.',
+      attachments: [
+        {
+          filename: pdfFileName,
+          path: pdfFilePath,
+        },
+      ],
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Erreur lors de l\'envoi de l\'e-mail :', error.message);
+        return res.status(500).send({ error: 'Échec de l\'envoi de l\'e-mail.' });
+      }
+      res.status(200).send({ message: 'PDF généré et envoyé avec succès par e-mail.' });
+    });
+
   } catch (error) {
-    console.error('Erreur :', error.message);
+    console.error('Erreur lors de la génération du PDF :', error.message);
     res.status(500).send({ error: error.message });
   }
 });
