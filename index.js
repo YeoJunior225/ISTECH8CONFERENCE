@@ -157,7 +157,6 @@ app.post('/generate-pdf', async (req, res) => {
       color: rgb(0, 0, 0),
     });
 
-   / Enregistrer le fichier PDF généré
     const pdfBytes = await pdfDoc.save();
     const pdfFileName = ${firstName}_${lastName}_certificat.pdf;
     const pdfFilePath = path.join(__dirname, 'generated_certificates', pdfFileName);
