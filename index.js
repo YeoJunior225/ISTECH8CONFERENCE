@@ -158,7 +158,7 @@ app.post('/generate-pdf', async (req, res) => {
     });
 
     const pdfBytes = await pdfDoc.save();
-    const pdfFileName = ${firstName}_${lastName}_certificat.pdf;
+const pdfFileName = `${firstName}_${lastName}_certificat.pdf`;
     const pdfFilePath = path.join(__dirname, 'generated_certificates', pdfFileName);
 
     if (!fs.existsSync(path.dirname(pdfFilePath))) {
