@@ -1,10 +1,9 @@
 const express = require('express');
-const { PDFDocument, rgb } = require('pdf-lib');
+const { PDFDocument, rgb, StandardFonts } = require('pdf-lib');
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
-const fontkit = require('@pdf-lib/fontkit');
 
 const app = express();
 
@@ -103,28 +102,14 @@ const authorizedUsers = [
   { firstName: 'KOAMBA' },
   { firstName: 'KOFFI' },
   { firstName: 'DIALLO' },
-  { firstName: 'DIALLO' },
   { firstName: 'GNAMIEN' },
   { firstName: 'TRA LOU' },
   { firstName: 'DIABY' },
   { firstName: 'TITI' },
   { firstName: 'ATILADE' },
   { firstName: 'DJIBO' },
-  { firstName: 'TRAORE' },
   { firstName: 'KACOU' },
-  { firstName: 'DIEMAN' },
-  { firstName: 'YAVO' },
-  { firstName: 'AGOUA' },
-  { firstName: 'KOFFI' },
-  { firstName: 'KINIMO' },
-  { firstName: 'DIAMOUTENE' },
-  { firstName: 'KOUAKOU' },
-  { firstName: 'YODE' },
-  { firstName: 'CISSE' },
-  { firstName: 'DEKPETI' },
 ];
-
-
 
 // Endpoint pour générer le PDF
 app.post('/generate-pdf', async (req, res) => {
@@ -136,13 +121,9 @@ app.post('/generate-pdf', async (req, res) => {
     }
 
     // Vérification si l'utilisateur est autorisé
-let name;
-const isAuthorized = authorizedUsers.some((user) => {
-  name = user.firstName;
-  console.log('tab', name);
-  console.log('champ', firstName);
-  return user.firstName.toLowerCase() === firstName.toLowerCase();
-});
+    const isAuthorized = authorizedUsers.some(
+      (user) => user.firstName.toLowerCase() === firstName.toLowerCase()
+    );
 
     if (!isAuthorized) {
       return res.status(403).send({ error: 'Accès refusé. Vous n’êtes pas autorisé à générer un PDF.' });
@@ -156,70 +137,32 @@ const isAuthorized = authorizedUsers.some((user) => {
     const pdfTemplate = fs.readFileSync(pdfTemplatePath);
     const pdfDoc = await PDFDocument.load(pdfTemplate);
 
-    // Enregistrer fontkit
-    pdfDoc.registerFontkit(fontkit);
-
-    // Charger la police personnalisée
-    const fontPath = path.join(__dirname, 'Poppins-Bold.ttf');
-    if (!fs.existsSync(fontPath)) {
-      throw new Error('Le fichier de police est introuvable.');
-    }
-    const fontBytes = fs.readFileSync(fontPath);
-    const customFont = await pdfDoc.embedFont(fontBytes);
+    // Utiliser une police standard intégrée
+    const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
     // Modifier le PDF
     const pages = pdfDoc.getPages();
     const firstPage = pages[0];
     const { height, width } = firstPage.getSize();
 
-    // Ajouter du texte centré horizontalement
     const text = `${firstName.toUpperCase()} ${lastName.toUpperCase()}`;
-    const textWidth = customFont.widthOfTextAtSize(text, 50);
+    const textWidth = font.widthOfTextAtSize(text, 50);
     const x = (width - textWidth) / 2;
 
-    // Ajustement de la position du texte
     firstPage.drawText(text, {
       x: x,
-      y: height - 600, // Position ajustée pour que le texte soit plus haut
+      y: height - 600,
       size: 50,
-      font: customFont,
+      font: font,
       color: rgb(0, 0, 0),
     });
 
-    // Enregistrer le fichier PDF généré
+    // Sauvegarder le PDF
     const pdfBytes = await pdfDoc.save();
-    const pdfFileName = `${firstName}_${lastName}_certificat.pdf`;
-    const pdfFilePath = path.join(__dirname, 'generated_certificates', pdfFileName);
-
-    if (!fs.existsSync(path.dirname(pdfFilePath))) {
-      fs.mkdirSync(path.dirname(pdfFilePath));
-    }
-    fs.writeFileSync(pdfFilePath, pdfBytes);
-
-    // Envoi de l'e-mail avec le PDF en pièce jointe
-    const mailOptions = {
-      from: 'textjuniortexte@gmail.com',
-      to: email,
-      subject: 'Votre certificat personnalisé',
-      text: 'Veuillez trouver ci-joint votre certificat.',
-      attachments: [
-        {
-          filename: pdfFileName,
-          path: pdfFilePath,
-        },
-      ],
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error('Erreur lors de l\'envoi de l\'e-mail :', error.message);
-        return res.status(500).send({ error: 'Échec de l\'envoi de l\'e-mail.' });
-      }
-      res.status(200).send({ message: 'PDF généré et envoyé avec succès par e-mail.' });
-    });
-
+    res.setHeader('Content-Type', 'application/pdf');
+    res.send(pdfBytes);
   } catch (error) {
-    console.error('Erreur lors de la génération du PDF :', error.message);
+    console.error('Erreur :', error.message);
     res.status(500).send({ error: error.message });
   }
 });
