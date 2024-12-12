@@ -136,12 +136,13 @@ app.post('/generate-pdf', async (req, res) => {
     }
 
     // Vérification si l'utilisateur est autorisé
-    const isAuthorized = authorizedUsers.some(
-      (user) =>
-        console.log('tab',user.firstName)
-        console.log('champ',firstName)
-        user.firstName.toLowerCase() === firstName.toLowerCase()  
-    );
+let name;
+const isAuthorized = authorizedUsers.some((user) => {
+  name = user.firstName;
+  console.log('tab', name);
+  console.log('champ', firstName);
+  return user.firstName.toLowerCase() === firstName.toLowerCase();
+});
 
     if (!isAuthorized) {
       return res.status(403).send({ error: 'Accès refusé. Vous n’êtes pas autorisé à générer un PDF.' });
